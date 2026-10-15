@@ -17,14 +17,20 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`)
   const { id, name, sprites } = response.data
 
+  const species = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${id}`)
+
+  const koreanName = species.data.names.find(
+    (item: { language: { name: string } }) => 
+      item.language.name === "ko"
+  )?.name
+
   return {
     id,
-    name,
+    name: koreanName || name,
     types: response.data.types,
     image: sprites.other["official-artwork"].front_default,
   }
 }
-
 export default function Detail() {
   const pokemon = useLoaderData<typeof clientLoader>()
 
